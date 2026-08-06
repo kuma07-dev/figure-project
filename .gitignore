@@ -1,0 +1,20 @@
+# 樂天 API 金鑰、MySQL 帳密等敏感設定
+.env
+
+# Python 暫存檔
+__pycache__/
+*.pyc
+
+# Python 虛擬環境
+venv/
+.venv/
+
+# 爬蟲產生的原始與清洗後資料
+data/raw/*
+!data/raw/.gitkeep
+
+data/processed/*
+!data/processed/.gitkeep
+
+# 作業系統檔案
+.DS_Store
