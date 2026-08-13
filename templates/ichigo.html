@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <title>黑崎一護｜價格詳情</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+    <a href="/">← 回首頁</a>
+
+    <h1>
+        {{ tracked_item.anime_title }}｜
+        {{ tracked_item.character_name }}
+    </h1>
+
+
+    <h2>每日中位數價格走勢</h2>
+    <canvas id="priceChart"></canvas>
+    <h2>樂天市場歷史價格</h2>
+
+    {% if snapshots %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>商品名稱</th>
+                <th>價格（日圓）</th>
+                <th>日本運費（日圓）</th>
+                <th>抓取時間</th>
+                <th>商品連結</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for snapshot in snapshots %}
+            <tr>
+                <td>{{ snapshot.title }}</td>
+                <td>¥{{ "{:,}".format(snapshot.price_jpy) }}</td>
+                <td>
+                    {% if snapshot.shipping_jpy is not none %}
+                    ¥{{ "{:,}".format(snapshot.shipping_jpy) }}
+                    {% else %}
+                    未知
+                    {% endif %}
+                </td>
+                <td>{{ snapshot.captured_at }}</td>
+                <td>
+                    <a href="{{ snapshot.product_url }}" target="_blank">
+                        前往樂天
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>目前沒有黑崎一護的價格紀錄。</p>
+    {% endif %}
+
+    <script>
+        const chartLabels = {{ chart_labels | tojson }};
+        const chartPrices = {{ chart_prices | tojson }};
+
+        const chartElement = document.getElementById("priceChart");
+
+        new Chart(chartElement, {
+            type: "line",
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: "每日中位數價格（日圓）",
+                    data: chartPrices,
+                    borderColor: "rgb(75, 192, 192)",
+                    backgroundColor: "rgba(75, 192, 192, 0.2)",
+                    borderWidth: 2,
+                    tension: 0.2
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: "日圓（¥）"
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: "日期"
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

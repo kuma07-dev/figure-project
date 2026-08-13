@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <title>跨境成本試算｜台日一番賞價格監測系統</title>
+</head>
+
+<body>
+    <a href="/">← 回首頁</a>
+
+    <h1>跨境成本試算器</h1>
+
+    <form method="post">
+        <p>
+            <label>
+                商品價格（日圓）
+                <input type="number" name="price_jpy" min="0" required>
+            </label>
+        </p>
+
+        <p>
+            <label>
+                日本國內運費（日圓）
+                <input type="number" name="shipping_jpy" min="0" value="0" required>
+            </label>
+        </p>
+
+        <p>
+            <label>
+                日圓匯率（1 日圓兌台幣）
+                <input type="number" name="exchange_rate" min="0" step="0.001" value="0.22" required>
+            </label>
+        </p>
+
+        <p>
+            <label>
+                代購費率（%）
+                <input type="number" name="proxy_fee_rate" min="0" step="0.1" value="10" required>
+            </label>
+        </p>
+
+        <p>
+            <label>
+                國際運費／材積費（台幣）
+                <input type="number" name="international_shipping_twd" min="0" value="250" required>
+            </label>
+        </p>
+
+        <p>
+            <label>
+                台灣平台手續費率（%）
+                <input type="number" name="platform_fee_rate" min="0" max="99" step="0.1" value="7" required>
+            </label>
+        </p>
+
+        <p>
+            <label>
+                預估台灣售價（台幣）
+                <input type="number" name="expected_sale_price_twd" min="0" required>
+            </label>
+        </p>
+
+        <button type="submit">開始試算</button>
+    </form>
+
+    {% if result %}
+    <hr>
+
+    <h2>試算結果</h2>
+
+    <p>商品台幣成本：NT${{ "{:,}".format(result.item_cost_twd) }}</p>
+    <p>代購費：NT${{ "{:,}".format(result.proxy_fee_twd) }}</p>
+    <p>預估落地成本：NT${{ "{:,}".format(result.landed_cost_twd) }}</p>
+    <p>台灣平台手續費：NT${{ "{:,}".format(result.platform_fee_twd) }}</p>
+    <p>損益兩平售價：NT${{ "{:,}".format(result.break_even_price_twd) }}</p>
+    <p>預估淨利：NT${{ "{:,}".format(result.estimated_profit_twd) }}</p>
+    <p>建議：{{ result.recommendation }}</p>
+    {% endif %}
+</body>
+
+</html>

@@ -8,6 +8,9 @@
 
 <body>
     <h1>台日一番賞價格監測系統</h1>
+
+    <a href="/calculator">跨境成本試算器</a>
+
     <p>資料來源：日本樂天市場 API</p>
 
     {% if items %}
@@ -26,7 +29,13 @@
             {% for item in items %}
             <tr>
                 <td>{{ item.anime_title }}</td>
-                <td>{{ item.character_name }}</td>
+                <td>
+                    {% if item.character_name == "黑崎一護" %}
+                    <a href="/ichigo">{{ item.character_name }}</a>
+                    {% else %}
+                    {{ item.character_name }}
+                    {% endif %}
+                </td>
                 <td>{{ item.title }}</td>
                 <td>¥{{ "{:,}".format(item.price_jpy) }}</td>
                 <td>{{ item.captured_at }}</td>

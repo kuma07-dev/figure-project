@@ -4,15 +4,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-print(f"🔍 本地檢查 APP_ID 長度: {len(RAKUTEN_APP_ID) if RAKUTEN_APP_ID else '未讀取到'}")
-print(f"🔍 本地檢查 ACCESS_KEY 長度: {len(YOUR_ACCESS_KEY) if YOUR_ACCESS_KEY else '未讀取到'}")
+print(f"🔍 本地檢查 APP_ID 長度: {len(RRAKUTEN_APPLICATION_ID) if RAKUTEN_APPLICATION_ID else '未讀取到'}")
+print(f"🔍 本地檢查 ACCESS_KEY 長度: {len(RAKUTEN_ACCESS_KEY) if RAKUTEN_ACCESS_KEY else '未讀取到'}")
 
 
 # 1. 🚀 2026 正式穩定版端點
 url = "https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701"
 
-RAKUTEN_APPLICATION_ID = os.getenv("RAKUTEN_APP_ID")
-YOUR_ACCESS_KEY = os.getenv("RAKUTEN_ACCESS_KEY") 
+RAKUTEN_APPLICATION_ID=os.getenv("RAKUTEN_APPLICATION_ID")
+YOUR_ACCESS_KEY=os.getenv("RAKUTEN_ACCESS_KEY") 
 
 # 2. 設定規範參數
 params = {      
