@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <title>台日一番賞價格監測系統</title>
+</head>
+
+<body>
+    <h1>台日一番賞價格監測系統</h1>
+    <p>資料來源：日本樂天市場 API</p>
+
+    {% if items %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>作品</th>
+                <th>角色</th>
+                <th>商品名稱</th>
+                <th>目前價格（日圓）</th>
+                <th>抓取時間</th>
+                <th>樂天連結</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.anime_title }}</td>
+                <td>{{ item.character_name }}</td>
+                <td>{{ item.title }}</td>
+                <td>¥{{ "{:,}".format(item.price_jpy) }}</td>
+                <td>{{ item.captured_at }}</td>
+                <td>
+                    <a href="{{ item.product_url }}" target="_blank">
+                        前往商品頁
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>目前尚無商品資料，請先執行 rakuten_crawler.py。</p>
+    {% endif %}
+</body>
+
+</html>
