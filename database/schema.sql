@@ -243,5 +243,9 @@ SET anime_title = '死神', series_name = NULL
 WHERE id = 1 AND character_name = '黑崎一護';
 
 
+-- 暫時關閉安全模式並重置
+SET SQL_SAFE_UPDATES = 0;
+UPDATE tracked_items SET series_name = NULL;
+SET SQL_SAFE_UPDATES = 1;
 
 

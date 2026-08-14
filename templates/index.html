@@ -341,10 +341,19 @@
 
                         <!-- 商品名稱欄位（自動防破版縮寫） -->
                         <td>
-                            <div class="title-text" title="{{ item.title }}">
-                                {{ item.title }}
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                {% if item.image_url %}
+                                <img src="{{ item.image_url }}" alt="商品圖"
+                                    style="width: 45px; height: 45px; border-radius: 4px; object-fit: cover; border: 1px solid #eee;">
+                                {% else %}
+                                <div
+                                    style="width: 45px; height: 45px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 0.8rem;">
+                                    無圖</div>
+                                {% endif %}
+                                <div class="title-text" title="{{ item.title }}" style="flex: 1;">{{ item.title }}</div>
                             </div>
                         </td>
+
 
                         <!-- 目前價格欄位 -->
                         <td>

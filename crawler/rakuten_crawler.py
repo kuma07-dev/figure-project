@@ -326,27 +326,36 @@ EXCLUDE_KEYWORDS = [
 
 
 def extract_series_name(title, anime_title):
-    """💡 自動網頁資訊判斷器：從樂天的商品名稱中，自動撈出系列主題名稱"""
+    """💡 升級強化版：更強大的網頁資訊判斷器
+    從樂天的商品名稱中，自動精準撈出「一番くじ」後面接著的【系列主題名稱】
+    """
     if not title:
-        return "基本款"
+        return "未分類"
         
-    pattern = r'(?:一番くじ|一番クジ)\s*(?:' + re.escape(anime_title) + r'|[A-Za-z\-]+)?\s*([^A-Z\s賞\[【]+(?:篇|伝|巻|章|〜[^〜]+〜|[\w\.\s]+(?=賞|フィギュア)))'
-    
-    match = re.search(pattern, title, re.IGNORECASE)
+    # 移除標題最前面的【未開封】、【中古】等雜質，避免干擾比對
+    clean_title = re.sub(r'^[\s【\[(]*(?:未開封|中古|新品|美盤|開封|BANDAI\s*SPIRITS)+[\]】)\s]*', '', title, flags=re.IGNORECASE)
+
+    # 1. 嚴格比對：尋找「一番くじ [作品名或英文] [主題名]」直到出現賞別或公仔字樣
+    pattern = r'(?:一番くじ|一番クジ|◆一番くじ)\s*(?:' + re.escape(anime_title) + r'|[A-Za-z\- \+、]+)?\s*([^A-Z\s賞\[【a-z0-9_]+(?:篇|伝|巻|章|vol\.\d+|〜[^〜]+〜|[\w\.\s]+(?=賞|フィギュア)))'
+    match = re.search(pattern, clean_title, re.IGNORECASE)
     if match:
         extracted = match.group(1).strip()
-        extracted = re.sub(r'^[\]）】\s]+|[\[（【\s]+$', '', extracted)
-        if len(extracted) > 2:
+        extracted = re.sub(r'^[\]）】\s\-]+|[\[（【\s\-]+$', '', extracted)
+        if len(extracted) > 2 and extracted not in ["SPIRITS"]:
             return extracted
-            
-    fallback_pattern = r'(?:一番くじ|一番クジ)\s*([^\s賞]+)'
-    fallback_match = re.search(fallback_pattern, title)
+
+    # 2. 廣泛比對備用方案：直接抓取「一番くじ [作品名]」後面到第一個空格或賞別前的所有日文字
+    fallback_pattern = r'(?:一番くじ|一番クジ|◆一番くじ)\s*(?:' + re.escape(anime_title) + r'|[A-Za-z\-]+)?\s*([^\s賞A-Z【\[]+)'
+    fallback_match = re.search(fallback_pattern, clean_title, re.IGNORECASE)
     if fallback_match:
         extracted = fallback_match.group(1).strip()
-        if extracted.upper() not in ["BLEACH", "NARUTO", "ONEPIECE", "ONE PIECE"]:
+        extracted = re.sub(r'^[\]）】\s\-]+|[\[（【\s\-]+$', '', extracted)
+        # 排除掉本身就是作品名稱的無意義字詞
+        if extracted and extracted.upper() not in ["BLEACH", "NARUTO", "ONEPIECE", "ONE PIECE", "SPIRITS"]:
             return extracted
             
-    return "基本款"
+    return "未分類"
+
 
 
 def calculate_popularity_score(total_count):
