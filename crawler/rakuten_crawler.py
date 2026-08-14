@@ -588,7 +588,7 @@ def main():
             print(f"關鍵字：{tracked_item['search_keyword']}")
 
             # 1. 呼叫 API 
-            total_count, raw_items = search_rakuten(tracked_item["search_keyword"])
+            total_count, raw_items = search_rakuten(tracked_item["search_keyword"], hits=30)
             cleaned_items = clean_items(raw_items)
 
             # 🎯 終極修正：使用標準 [0] 取第一筆資料，完美相容無崩潰
