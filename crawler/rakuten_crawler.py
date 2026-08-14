@@ -308,7 +308,7 @@ from database import get_connection
 
 load_dotenv()
 
-# 🎯 全球開發者標準官方 IchibaItem 端點
+# 全球開發者標準官方 IchibaItem 端點
 API_URL = "https://rakuten.co.jp"
 
 APPLICATION_ID = os.getenv("RAKUTEN_APPLICATION_ID")
@@ -326,35 +326,67 @@ EXCLUDE_KEYWORDS = [
 
 
 def extract_series_name(title, anime_title):
-    """💡 升級強化版：更強大的網頁資訊判斷器
-    從樂天的商品名稱中，自動精準撈出「一番くじ」後面接著的【系列主題名稱】
-    """
+    """從樂天商品名稱中自動擷取一番賞系列主題（穩定版）"""
+
     if not title:
         return "未分類"
-        
-    # 移除標題最前面的【未開封】、【中古】等雜質，避免干擾比對
-    clean_title = re.sub(r'^[\s【\[(]*(?:未開封|中古|新品|美盤|開封|BANDAI\s*SPIRITS)+[\]】)\s]*', '', title, flags=re.IGNORECASE)
 
-    # 1. 嚴格比對：尋找「一番くじ [作品名或英文] [主題名]」直到出現賞別或公仔字樣
-    pattern = r'(?:一番くじ|一番クジ|◆一番くじ)\s*(?:' + re.escape(anime_title) + r'|[A-Za-z\- \+、]+)?\s*([^A-Z\s賞\[【a-z0-9_]+(?:篇|伝|巻|章|vol\.\d+|〜[^〜]+〜|[\w\.\s]+(?=賞|フィギュア)))'
+    # 清除常見雜訊
+    clean_title = title
+
+    noise_words = [
+        "【未開封】", "【中古】", "【新品】",
+        "未開封", "中古", "新品",
+        "BANDAI SPIRITS", "バンダイ", "日版", "正版"
+    ]
+
+    for word in noise_words:
+        clean_title = clean_title.replace(word, "")
+
+    clean_title = clean_title.strip()
+
+    # =========================================================
+    # 規則 1：擷取「一番くじ 作品名 系列名」
+    # 例如：
+    # 一番くじ BLEACH Stirring Souls vol.4 C賞
+    # → Stirring Souls vol.4
+    # =========================================================
+    pattern = (
+        r'(?:一番くじ|一番クジ)\\s*'
+        + re.escape(anime_title)
+        + r'\\s+(.+?)(?:\\s+[A-Z]賞|\\s+フィギュア|\\s*$)'
+    )
+
     match = re.search(pattern, clean_title, re.IGNORECASE)
-    if match:
-        extracted = match.group(1).strip()
-        extracted = re.sub(r'^[\]）】\s\-]+|[\[（【\s\-]+$', '', extracted)
-        if len(extracted) > 2 and extracted not in ["SPIRITS"]:
-            return extracted
 
-    # 2. 廣泛比對備用方案：直接抓取「一番くじ [作品名]」後面到第一個空格或賞別前的所有日文字
-    fallback_pattern = r'(?:一番くじ|一番クジ|◆一番くじ)\s*(?:' + re.escape(anime_title) + r'|[A-Za-z\-]+)?\s*([^\s賞A-Z【\[]+)'
-    fallback_match = re.search(fallback_pattern, clean_title, re.IGNORECASE)
-    if fallback_match:
-        extracted = fallback_match.group(1).strip()
-        extracted = re.sub(r'^[\]）】\s\-]+|[\[（【\s\-]+$', '', extracted)
-        # 排除掉本身就是作品名稱的無意義字詞
-        if extracted and extracted.upper() not in ["BLEACH", "NARUTO", "ONEPIECE", "ONE PIECE", "SPIRITS"]:
-            return extracted
-            
-    return "未分類"
+    if match:
+        series = match.group(1).strip()
+
+        # 去掉尾端多餘符號
+        series = re.sub(r'[】\\]）)]+$', '', series).strip()
+
+        if len(series) >= 3:
+            return series
+
+    # =========================================================
+    # 規則 2：BLEACH 特例（因為很多商品寫法不一致）
+    # =========================================================
+    bleach_match = re.search(
+        r'BLEACH\\s+(.+?)(?:\\s+[A-Z]賞|\\s+フィギュア|\\s*$)',
+        clean_title,
+        re.IGNORECASE
+    )
+
+    if bleach_match:
+        series = bleach_match.group(1).strip()
+
+        if len(series) >= 3:
+            return series
+
+    # =========================================================
+    # 規則 3：保底
+    # =========================================================
+    return anime_title
 
 
 
@@ -377,10 +409,11 @@ def update_tracked_item_meta(tracked_item_id, popularity_score, series_name):
     connection = get_connection()
     try:
         with connection.cursor() as cursor:
+            # 強制將判定出來的系列主題更新進去
             sql = """
                 UPDATE tracked_items 
                 SET popularity_score = %s,
-                    series_name = COALESCE(NULLIF(series_name, ''), %s),
+                    series_name = %s,
                     updated_at = NOW()
                 WHERE id = %s
             """
@@ -430,7 +463,7 @@ def search_rakuten(keyword, hits=10):
     captured_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     results = []
 
-    # 🎯 萬能相容解析：處理官方封裝的 "Item" 雙層外殼
+    # 萬能相容解析：處理官方封裝的 "Item" 雙層外殼
     for item_wrapper in data.get("Items", []):
         if not isinstance(item_wrapper, dict):
             continue
@@ -554,16 +587,26 @@ def main():
             print(f"ID：{tracked_item['id']}｜{tracked_item['anime_title']}｜{tracked_item['character_name']}")
             print(f"關鍵字：{tracked_item['search_keyword']}")
 
-            # 🎯 安全呼叫 API 
+            # 1. 呼叫 API 
             total_count, raw_items = search_rakuten(tracked_item["search_keyword"])
             cleaned_items = clean_items(raw_items)
 
-            # 🎯 修正核心：安全取第一個商品的關鍵欄位 [.get("title")] 避免崩潰
-            detected_series = "基本款"
-            if len(cleaned_items) > 0:
-                detected_series = extract_series_name(cleaned_items[0].get("title"), tracked_item["anime_title"])
+            # 🎯 終極修正：使用標準 [0] 取第一筆資料，完美相容無崩潰
+            from collections import Counter
+
+            series_counter = Counter()
+
+            for item in cleaned_items:
+                series = extract_series_name(item.get("title"), tracked_item["anime_title"])
+                if series and series != "未分類":
+                    series_counter[series] += 1
+
+            if series_counter:
+                detected_series = series_counter.most_common(1)[0][0]
+            else:
+                detected_series = tracked_item["anime_title"]
             
-            # 自動熱度與回寫
+            # 2. 自動計算 1~5 星熱度分數，並連同系列名更新
             popularity_score = calculate_popularity_score(total_count)
             update_tracked_item_meta(tracked_item["id"], popularity_score, detected_series)
 
@@ -573,7 +616,7 @@ def main():
 
             for number, item in enumerate(cleaned_items, start=1):
                 print(f"[{number}] {item['title'][:35]}...")
-                print(f"價格：¥{item['price_jpy']:,} ｜ 網址：已取得")
+                print(f"價格：¥{item['price_jpy']:,} ｜ 商店：{item['shop_name']}")
                 print("-" * 50)
                 
                 listing_id = upsert_listing(tracked_item["id"], item)
@@ -585,3 +628,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
