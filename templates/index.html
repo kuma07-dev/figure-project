@@ -1,4 +1,4 @@
-<!doctype html>
+<!-- <!doctype html>
 <html lang="zh-Hant">
 
 <head>
@@ -9,9 +9,16 @@
 <body>
     <h1>台日一番賞價格監測系統</h1>
 
-    <a href="/calculator">跨境成本試算器</a>
+    <p>
+        <a href="/ichigo">查看黑崎一護詳情</a>｜
+        <a href="/calculator">跨境成本試算器</a>
+    </p>
 
-    <p>資料來源：日本樂天市場 API</p>
+    <p style="color: #777; font-size: 0.9em; background-color: #f9f9f9; padding: 10px; border-radius: 4px;">
+        資料來源：日本樂天市場 API｜
+        監測對象：BLEACH 黑崎一護｜<br>
+        <small>⚠️ 價格僅供市場觀察，不代表成交價或保證獲利。</small>
+    </p>
 
     {% if items %}
     <table border="1">
@@ -51,6 +58,322 @@
     {% else %}
     <p>目前尚無商品資料，請先執行 rakuten_crawler.py。</p>
     {% endif %}
+</body>
+
+</html> -->
+
+
+
+
+
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台日一番賞價格監測系統</title>
+
+    <!-- 💡 直接內建純手寫極簡高質感電商樣式，徹底擺脫外部網址載入失敗的問題 -->
+    <style>
+        /* 基礎版面設定 */
+        body {
+            background-color: #f4f6f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        /* 質感黑色頂部導航列 */
+        .custom-navbar {
+            background-color: #1a1a1a;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            color: #ffc107;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .navbar-menu a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .navbar-menu a:hover {
+            color: #ffc107;
+        }
+
+        .btn-calc {
+            background-color: #ffc107;
+            color: #1a1a1a !important;
+            padding: 6px 15px;
+            border-radius: 4px;
+            font-weight: bold !important;
+        }
+
+        .btn-calc:hover {
+            background-color: #e0a800;
+        }
+
+        /* 主要內容區塊 */
+        .main-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* 數據來源卡片 */
+        .info-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            border-left: 5px solid #dc3545;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-text {
+            font-size: 0.95rem;
+            color: #495057;
+        }
+
+        .info-text strong {
+            color: #1a1a1a;
+        }
+
+        .notice-text {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        /* 現代化無邊框表格區塊 */
+        .table-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .section-title {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            color: #212529;
+            border-bottom: 2px solid #f4f6f9;
+            padding-bottom: 10px;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .custom-table th {
+            background-color: #f8f9fa;
+            color: #495057;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .custom-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+
+        .custom-table tr:hover {
+            background-color: #fafdff;
+        }
+
+        /* 關鍵數據標籤樣式 */
+        .badge-anime {
+            background-color: #6c757d;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .series-text {
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .btn-character {
+            display: inline-block;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-character:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .title-text {
+            max-width: 350px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #333;
+        }
+
+        .price-text {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 1.15rem;
+        }
+
+        .time-text {
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+
+        .link-text {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .link-text:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 1. 獨立內建高質感頂部導航列 -->
+    <div class="custom-navbar">
+        <a class="navbar-brand" href="/">🤖 台日一番賞價格監測系統</a>
+        <div class="navbar-menu">
+            <a href="/">首頁</a>
+            <a href="/series/死神">死神系列</a>
+            <a href="/series/火影忍者">火影忍者</a>
+            <a href="/series/航海王">航海王</a>
+            <a href="/calculator" class="btn-calc">🧮 跨境成本試算器</a>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- 2. 獨立內建數據來源提示區 -->
+        <div class="info-card">
+            <div class="info-text">
+                <strong>數據來源：</strong>日本樂天市場 API ｜ <strong>監測狀態：</strong>跨作品多角色自動追蹤
+            </div>
+            <div class="notice-text">
+                ⚠️ 價格僅供市場觀察，不代表實際成交價或保證獲利。
+            </div>
+        </div>
+
+        <!-- 3. 獨立內建觀測清單表格 -->
+        <div class="table-section">
+            <div class="section-title">📊 當前市場觀測清單</div>
+
+            {% if items %}
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>作品</th>
+                        <th>系列代號/主題</th>
+                        <th>角色</th>
+                        <th>商品名稱</th>
+                        <th>目前價格 (日圓)</th>
+                        <th>數據抓取時間</th>
+                        <th>遠端連結</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <!-- 作品欄位 -->
+                        <td>
+                            <span class="badge-anime">{{ item.anime_title }}</span>
+                        </td>
+
+                        <!-- 系列代號（你原本堅持的獨立第二欄） -->
+                        <td>
+                            <span class="series-text">
+                                {% if item.series_name and item.series_name != "基本款" %}
+                                {{ item.series_name }}
+                                {% else %}
+                                <span style="color:#999; font-style:italic;">( 未分類 )</span>
+                                {% endif %}
+                            </span>
+                        </td>
+
+                        <!-- 角色欄位：改為精美按鈕 -->
+                        <td>
+                            <a href="/character/{{ item.tracked_item_id }}" class="btn-character">
+                                👤 {{ item.character_name }}
+                            </a>
+                        </td>
+
+                        <!-- 商品名稱欄位（自動防破版縮寫） -->
+                        <td>
+                            <div class="title-text" title="{{ item.title }}">
+                                {{ item.title }}
+                            </div>
+                        </td>
+
+                        <!-- 目前價格欄位 -->
+                        <td>
+                            <span class="price-text">¥{{ "{:,}".format(item.price_jpy) }}</span>
+                        </td>
+
+                        <!-- 抓取時間欄位 -->
+                        <td>
+                            <span class="time-text">{{ item.captured_at }}</span>
+                        </td>
+
+                        <!-- 連結跳轉欄位 -->
+                        <td>
+                            <a href="{{ item.product_url }}" target="_blank" class="link-text">
+                                前往樂天 ↗
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: #dc3545; font-weight: bold; text-align: center; padding: 20px;">
+                目前資料庫尚無商品資料，請先至後端執行爬蟲腳本。
+            </p>
+            {% endif %}
+        </div>
+    </div>
+
 </body>
 
 </html>

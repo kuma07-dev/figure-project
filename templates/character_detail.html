@@ -1,0 +1,479 @@
+<!-- <!doctype html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <title>黑崎一護｜價格詳情</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+    <a href="/">← 回首頁</a>
+
+    <h1>
+        {{ tracked_item.anime_title }}｜
+        {{ tracked_item.character_name }}
+    </h1>
+
+
+    <h2>每日中位數價格走勢</h2>
+    <canvas id="priceChart"></canvas>
+    <h2>樂天市場歷史價格</h2>
+
+    {% if snapshots %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>商品名稱</th>
+                <th>價格（日圓）</th>
+                <th>日本運費（日圓）</th>
+                <th>抓取時間</th>
+                <th>商品連結</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for snapshot in snapshots %}
+            <tr>
+                <td>{{ snapshot.title }}</td>
+                <td>¥{{ "{:,}".format(snapshot.price_jpy) }}</td>
+                <td>
+                    {% if snapshot.shipping_jpy is not none %}
+                    ¥{{ "{:,}".format(snapshot.shipping_jpy) }}
+                    {% else %}
+                    未知
+                    {% endif %}
+                </td>
+                <td>{{ snapshot.captured_at }}</td>
+                <td>
+                    <a href="{{ snapshot.product_url }}" target="_blank">
+                        前往樂天
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>目前沒有黑崎一護的價格紀錄。</p>
+    {% endif %}
+
+    <script>
+        const chartLabels = {{ chart_labels | tojson }};
+        const chartPrices = {{ chart_prices | tojson }};
+
+        const chartElement = document.getElementById("priceChart");
+
+        new Chart(chartElement, {
+            type: "line",
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: "每日中位數價格（日圓）",
+                    data: chartPrices,
+                    borderColor: "rgb(75, 192, 192)",
+                    backgroundColor: "rgba(75, 192, 192, 0.2)",
+                    borderWidth: 2,
+                    tension: 0.2
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: "日圓（¥）"
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: "日期"
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html> -->
+
+
+
+
+
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ tracked_item.character_name }} ｜ 數據指標與價格預警詳情</title>
+
+    <!-- 引入圖表繪製核心庫 -->
+    <script src="https://jsdelivr.net"></script>
+
+    <!-- 內建純手寫極簡高質感電商樣式 -->
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .custom-navbar {
+            background-color: #1a1a1a;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            color: #ffc107;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .navbar-menu a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            margin-left: 20px;
+        }
+
+        .navbar-menu a:hover {
+            color: #ffc107;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 15px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            margin: 5px 0 25px 0;
+            font-size: 1.8rem;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            color: #212529;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .score-dashboard {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .score-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px 20px;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .score-card.total {
+            background: #fff8e1;
+            border-color: #ffe082;
+        }
+
+        .score-title {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .score-value {
+            font-size: 1.7rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .score-card.total .score-value {
+            color: #f57c00;
+        }
+
+        .chart-section,
+        .table-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            margin-bottom: 25px;
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 800px;
+            height: 350px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .custom-table th {
+            background-color: #f8f9fa;
+            color: #495057;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .custom-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+
+        .custom-table tr:hover {
+            background-color: #fafdff;
+        }
+
+        .badge-anime {
+            background-color: #007bff;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .price-text {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .time-text {
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+
+        .link-text {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .link-text:hover {
+            text-decoration: underline;
+        }
+
+        .alert-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .alert-low {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-high {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-normal {
+            background-color: #e2e3e5;
+            color: #383d41;
+            border: 1px solid #d6d8db;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="custom-navbar">
+        <a class="navbar-brand" href="/">🤖 台日一番賞價格監測系統</a>
+        <div class="navbar-menu"><a href="/">回首頁</a><a href="/calculator">🧮 跨境成本試算器</a></div>
+    </div>
+
+    <div class="main-container">
+        <a href="/" class="back-btn">← 返回首頁（全部監測清單）</a>
+        <h1><span class="badge-anime">{{ tracked_item.anime_title }}</span> {{ tracked_item.character_name }}</h1>
+
+        <h2>📊 投資與收藏價值指標</h2>
+        <div class="score-dashboard">
+            <div class="score-card">
+                <div class="score-title">🔥 人氣熱度</div>
+                <div class="score-value">{{ tracked_item.popularity_score if tracked_item.popularity_score is not none
+                    else '-' }}<span style="font-size:0.5em;color:#aaa;"> /5</span></div>
+            </div>
+            <div class="score-card">
+                <div class="score-title">💎 稀有度</div>
+                <div class="score-value">{{ tracked_item.rarity_score if tracked_item.rarity_score is not none else '-'
+                    }}<span style="font-size:0.5em;color:#aaa;"> /5</span></div>
+            </div>
+            <div class="score-card">
+                <div class="score-title">🎨 做工質量</div>
+                <div class="score-value">{{ tracked_item.quality_score if tracked_item.quality_score is not none else
+                    '-' }}<span style="font-size:0.5em;color:#aaa;"> /5</span></div>
+            </div>
+            <div class="score-card total">
+                <div class="score-title">📈 綜合推薦度</div>
+                <div class="score-value">
+                    {% if tracked_item.design_score is not none %}
+                    {{ tracked_item.design_score }}<span style="font-size:0.5em;color:#f57c00;"> /5</span>
+                    {% elif tracked_item.popularity_score and tracked_item.rarity_score and tracked_item.quality_score
+                    %}
+                    {{ ((tracked_item.popularity_score + tracked_item.rarity_score + tracked_item.quality_score) / 3) |
+                    round(1) }}<span style="font-size:0.5em;color:#f57c00;"> /5</span>
+                    {% else %}
+                    -
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <h2>📈 每日中位數價格走勢</h2>
+        <div class="chart-section">
+            <div class="chart-container"><canvas id="priceChart"></canvas></div>
+        </div>
+        <!-- 3. 歷史明細與預警燈號區塊 -->
+        <h2>🔍 樂天市場歷史價格與預警狀態</h2>
+        <div class="table-section">
+            {% if snapshots %}
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>商品名稱</th>
+                        <th>目前價格 (日圓)</th>
+                        <th>價格狀態預警</th>
+                        <th>日本國內運費</th>
+                        <th>資料抓取時間</th>
+                        <th>遠端連結</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for snapshot in snapshots %}
+                    <tr>
+                        <td>{{ snapshot.title }}</td>
+                        <td><span class="price-text">¥{{ "{:,}".format(snapshot.price_jpy) }}</span></td>
+
+                        <!-- 預警判定燈號核心邏輯 -->
+                        <td>
+                            {% if current_median and current_median > 0 %}
+                            {% set diff_ratio = (snapshot.price_jpy - current_median) / current_median %}
+                            {% if diff_ratio <= -0.15 %} <span class="alert-badge alert-low">🔥 低估特價 (-{{ (diff_ratio *
+                                -100) | round }}%)</span>
+                                {% elif diff_ratio >= 0.15 %}
+                                <span class="alert-badge alert-high">⚠️ 溢價偏高 (+{{ (diff_ratio * 100) | round }}%)</span>
+                                {% else %}
+                                <span class="alert-badge alert-normal">⚖️ 價格平穩</span>
+                                {% endif %}
+                                {% else %}
+                                <span class="alert-badge alert-normal">計算中</span>
+                                {% endif %}
+                        </td>
+
+                        <td>
+                            {% if snapshot.shipping_jpy is not none %}
+                            {% if snapshot.shipping_jpy == 0 %}
+                            <span style="color: #ff5722; font-weight: bold;">免運費</span>
+                            {% else %}
+                            ¥{{ "{:,}".format(snapshot.shipping_jpy) }}
+                            {% endif %}
+                            {% else %}
+                            <span style="color: #999; font-style: italic;">( 未知 )</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="time-text">{{ snapshot.captured_at }}</span></td>
+                        <td><a href="{{ snapshot.product_url }}" target="_blank" class="link-text">前往樂天 ↗</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: #ff5722; font-weight: bold; text-align: center; padding: 20px;">
+                目前資料庫內尚無 {{ tracked_item.character_name }} 的歷史監測紀錄。
+            </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Chart.js 圖表渲染腳本 -->
+    <script>
+        const chartLabels = {{ chart_labels | tojson }};
+        const chartPrices = {{ chart_prices | tojson }};
+        const characterName = "{{ tracked_item.character_name }}";
+
+        const chartElement = document.getElementById("priceChart");
+        if (chartLabels.length > 0) {
+            new Chart(chartElement, {
+                type: "line",
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: `${characterName} 每日中位數價格（日圓）`,
+                        data: chartPrices,
+                        borderColor: "rgb(220, 53, 69)",
+                        backgroundColor: "rgba(220, 53, 69, 0.08)",
+                        borderWidth: 3,
+                        tension: 0.18,
+                        pointRadius: 4,
+                        pointBackgroundColor: "rgb(220, 53, 69)"
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: { title: { display: true, text: "日圓價格（¥）" } },
+                        x: { title: { display: true, text: "監測觀測日期" } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

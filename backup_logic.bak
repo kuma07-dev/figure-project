@@ -1,0 +1,606 @@
+
+
+以下是index.html修改過要再被美化版面程式碼取代而被廢棄
+
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台日一番賞價格監測系統</title>
+    <style>
+        /* 稍微加點基礎樣式，讓導覽與表格更美觀 */
+        body {
+            font-family: sans-serif;
+            margin: 30px;
+            line-height: 1.6;
+        }
+
+        .nav-bar {
+            margin-bottom: 20px;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .nav-bar a {
+            text-decoration: none;
+            color: #0066cc;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .nav-bar a:hover {
+            text-decoration: underline;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .notice-box {
+            color: #777;
+            font-size: 0.9em;
+            background-color: #f9f9f9;
+            padding: 12px;
+            border-radius: 4px;
+            border-left: 4px solid #ffcc00;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>台日一番賞價格監測系統</h1>
+
+    <!-- 升級後的快速導覽列：包含三大熱門動漫作品與試算器 -->
+    <!-- 🎯 網址後方的英文字改成中文，完美匹配資料庫的 anime_title -->
+    <div class="nav-bar">
+        <a href="/">🏠 首頁（全部商品）</a>｜
+        <a href="/series/死神">⚔️ 死神系列</a>｜
+        <a href="/series/火影忍者">🍃 火影忍者</a>｜
+        <a href="/series/航海王">☠️ 航海王</a>｜
+        <a href="/calculator">🧮 跨境成本試算器</a>
+    </div>
+
+
+
+    <div class="notice-box">
+        <strong>資料來源：</strong>日本樂天市場 API ｜
+        <strong>當前監測：</strong>跨作品多角色連線追蹤<br>
+        <small>⚠️ 價格僅供市場觀察，不代表實際成交價或保證獲利。</small>
+    </div>
+
+    {% if items %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>作品</th>
+                <th>系列代號</th>
+                <th>角色</th>
+                <th>商品名稱</th>
+                <th>目前價格（日圓）</th>
+                <th>抓取時間</th>
+                <th>樂天連結</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <!-- 💡 標示修改點：拆回獨立的兩個 <td> 標籤 -->
+                <td><strong>{{ item.anime_title }}</strong></td>
+
+                <td>
+                    <small>
+                        {% if item.series_name %}
+                        {{ item.series_name }}
+                        {% else %}
+                        未分類
+                        {% endif %}
+                    </small>
+                </td>
+
+
+
+                <!-- 角色欄位自動動態化：點擊任何角色都會引導至各自的專屬 ID 詳情頁 -->
+                <td>
+                    <a href="/character/{{ item.tracked_item_id }}"
+                        style="color: #d9383a; font-weight: bold; text-decoration: none;">
+                        {{ item.character_name }}
+                    </a>
+                </td>
+
+                <!-- 樂天抓到的商品標題 -->
+                <td>{{ item.title }}</td>
+
+                <!-- 日圓價格千分位轉換 -->
+                <td style="color: #228b22; font-weight: bold;">
+                    ¥{{ "{:,}".format(item.price_jpy) }}
+                </td>
+
+                <!-- 抓取時間 -->
+                <td><small>{{ item.captured_at }}</small></td>
+
+                <!-- 樂天賣場傳送門 -->
+                <td>
+                    <a href="{{ item.product_url }}" target="_blank" style="color: #0066cc;">
+                        前往商品頁 ↗
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color: #ff0000; font-weight: bold; margin-top: 20px;">
+        目前資料庫尚無商品資料，請先至後端執行 `cron_update_prices.py` 腳本抓取 API 資料。
+    </p>
+    {% endif %}
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+以下是character_detail.html修改過要再被美化版面程式碼取代而被廢棄
+
+
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ tracked_item.character_name }} ｜ 數據指標與價格預警詳情</title>
+
+    <!-- 引入 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 30px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: #0066cc;
+            font-weight: bold;
+        }
+
+        h1 {
+            margin-top: 5px;
+            margin-bottom: 20px;
+        }
+
+        .score-dashboard {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .score-card {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 12px 20px;
+            min-width: 120px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .score-card.total {
+            background: #fff8e1;
+            border-color: #ffe082;
+        }
+
+        .score-title {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .score-value {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #0288d1;
+        }
+
+        .score-card.total .score-value {
+            color: #f57c00;
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px 0;
+            background: #fdfdfd;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #fafdff;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .badge.anime {
+            background-color: #e1f5fe;
+            color: #0288d1;
+        }
+
+        .alert-badge {
+            font-size: 0.8em;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .alert-low {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .alert-high {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+
+        .alert-normal {
+            background-color: #f5f5f5;
+            color: #616161;
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="/" class="back-btn">← 返回首頁（全部監測清單）</a>
+
+    <h1>
+        <span class="badge anime">{{ tracked_item.anime_title }}</span>
+        {{ tracked_item.character_name }}
+    </h1>
+
+    <h2>📊 投資與收藏價值指標</h2>
+
+    <div class="score-dashboard">
+        <div class="score-card">
+            <div class="score-title">🔥 人氣熱度</div>
+            <div class="score-value">
+                {{ tracked_item.popularity_score if tracked_item.popularity_score is not none else '-' }}
+                <span style="font-size:0.5em;">/5</span>
+            </div>
+        </div>
+
+        <div class="score-card">
+            <div class="score-title">💎 稀有度</div>
+            <div class="score-value">
+                {{ tracked_item.rarity_score if tracked_item.rarity_score is not none else '-' }}
+                <span style="font-size:0.5em;">/5</span>
+            </div>
+        </div>
+
+        <div class="score-card">
+            <div class="score-title">🎨 做工質量</div>
+            <div class="score-value">
+                {{ tracked_item.quality_score if tracked_item.quality_score is not none else '-' }}
+                <span style="font-size:0.5em;">/5</span>
+            </div>
+        </div>
+
+        <div class="score-card total">
+            <div class="score-title">📈 綜合推薦度</div>
+            <div class="score-value">
+                {% if tracked_item.design_score is not none %}
+                {{ tracked_item.design_score }}
+                {% elif tracked_item.popularity_score and tracked_item.rarity_score and tracked_item.quality_score %}
+                {{ ((tracked_item.popularity_score + tracked_item.rarity_score + tracked_item.quality_score) / 3) |
+                round(1) }}
+                {% else %}
+                -
+                {% endif %}
+                <span style="font-size:0.5em;">/5</span>
+            </div>
+        </div>
+    </div>
+
+    <h2>📈 每日中位數價格走勢</h2>
+
+    <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+    </div>
+
+    <h2>🔍 樂天市場歷史價格與預警狀態</h2>
+
+    {% if snapshots %}
+    <table>
+        <thead>
+            <tr>
+                <th>商品名稱</th>
+                <th>目前價格（日圓）</th>
+                <th>價格狀態預警</th>
+                <th>日本國內運費</th>
+                <th>資料抓取時間</th>
+                <th>樂天原廠連結</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for snapshot in snapshots %}
+            <tr>
+                <td>{{ snapshot.title }}</td>
+
+                <td style="color: #228b22; font-weight: bold;">
+                    ¥{{ "{:,}".format(snapshot.price_jpy) }}
+                </td>
+
+                <td>
+                    {% if current_median and current_median > 0 %}
+                    {% set diff_ratio = (snapshot.price_jpy - current_median) / current_median %}
+
+                    {% if diff_ratio <= -0.15 %} <span class="alert-badge alert-low">
+                        🔥 低估特價 (-{{ (diff_ratio * -100) | round }}%)
+                        </span>
+
+                        {% elif diff_ratio >= 0.15 %}
+                        <span class="alert-badge alert-high">
+                            ⚠️ 溢價偏高 (+{{ (diff_ratio * 100) | round }}%)
+                        </span>
+
+                        {% else %}
+                        <span class="alert-badge alert-normal">⚖️ 價格平穩</span>
+                        {% endif %}
+
+                        {% else %}
+                        <span class="alert-badge alert-normal">計算中</span>
+                        {% endif %}
+                </td>
+
+                <td>
+                    {% if snapshot.shipping_jpy is not none %}
+                    {% if snapshot.shipping_jpy == 0 %}
+                    <span style="color: #ff5722; font-weight: bold;">免運費</span>
+                    {% else %}
+                    ¥{{ "{:,}".format(snapshot.shipping_jpy) }}
+                    {% endif %}
+                    {% else %}
+                    <span style="color: #999;">未知</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    <small>{{ snapshot.captured_at }}</small>
+                </td>
+
+                <td>
+                    <a href="{{ snapshot.product_url }}" target="_blank" style="color: #0066cc;">
+                        前往樂天 ↗
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% else %}
+    <p style="color: #ff5722; font-weight: bold; margin-top: 20px;">
+        目前資料庫內尚無 {{ tracked_item.character_name }} 的歷史監測紀錄。
+    </p>
+    {% endif %}
+
+    <script>
+        // 使用 safe 避免 VS Code 與某些情況下的 JSON 解析警告
+        const chartLabels = {{ chart_labels | tojson | safe }};
+        const chartPrices = {{ chart_prices | tojson | safe }};
+        const characterName = {{ tracked_item.character_name | tojson | safe }};
+
+        const chartElement = document.getElementById("priceChart");
+
+        new Chart(chartElement, {
+            type: "line",
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: `${characterName} 每日中位數價格（日圓）`,
+                    data: chartPrices,
+                    borderColor: "rgb(244, 67, 54)",
+                    backgroundColor: "rgba(244, 67, 54, 0.1)",
+                    borderWidth: 3,
+                    tension: 0.2,
+                    pointRadius: 4,
+                    pointBackgroundColor: "rgb(244, 67, 54)"
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: "日圓價格（¥）",
+                            font: {
+                                weight: "bold"
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: "監測觀測日期",
+                            font: {
+                                weight: "bold"
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+以下是calculator.html修改過要再被美化版面程式碼取代而被廢棄
+
+
+
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <title>跨境成本試算｜台日一番賞價格監測系統</title>
+</head>
+
+<body>
+    <a href="/">← 回首頁</a>
+
+    <h1>跨境成本試算器</h1>
+
+    <form method="post">
+        <p>
+            <label>
+                商品價格（日圓）
+                <input type="number" name="price_jpy" min="0" required>
+            </label>
+        </p>
+
+        <p>
+            <label>
+                日本國內運費（日圓）
+                <input type="number" name="shipping_jpy" min="0" value="0" required>
+            </label>
+        </p>
+
+        <p>
+            <label>
+                日圓匯率（1 日圓兌台幣）
+                <input type="number" name="exchange_rate" min="0" step="0.001" value="0.22" required>
+            </label>
+        </p>
+
+        <p>
+            <label>
+                代購費率（%）
+                <input type="number" name="proxy_fee_rate" min="0" step="0.1" value="10" required>
+            </label>
+        </p>
+
+        <p>
+            <label>
+                國際運費／材積費（台幣）
+                <input type="number" name="international_shipping_twd" min="0" value="250" required>
+            </label>
+        </p>
+
+        <p>
+            <label>
+                台灣平台手續費率（%）
+                <input type="number" name="platform_fee_rate" min="0" max="99" step="0.1" value="7" required>
+            </label>
+        </p>
+
+        <p>
+            <label>
+                預估台灣售價（台幣）
+                <input type="number" name="expected_sale_price_twd" min="0" required>
+            </label>
+        </p>
+
+        <button type="submit">開始試算</button>
+    </form>
+
+    {% if result %}
+    <hr>
+
+    <h2>試算結果</h2>
+
+    <p>商品台幣成本：NT${{ "{:,}".format(result.item_cost_twd) }}</p>
+    <p>代購費：NT${{ "{:,}".format(result.proxy_fee_twd) }}</p>
+    <p>預估落地成本：NT${{ "{:,}".format(result.landed_cost_twd) }}</p>
+    <p>台灣平台手續費：NT${{ "{:,}".format(result.platform_fee_twd) }}</p>
+    <p>損益兩平售價：NT${{ "{:,}".format(result.break_even_price_twd) }}</p>
+    <p>預估淨利：NT${{ "{:,}".format(result.estimated_profit_twd) }}</p>
+    <p>建議：{{ result.recommendation }}</p>
+    {% endif %}
+</body>
+
+</html>

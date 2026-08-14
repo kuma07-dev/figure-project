@@ -178,3 +178,70 @@ ORDER BY p.captured_at;
 
 
 SHOW WARNINGS;
+
+
+
+
+INSERT INTO tracked_items
+(anime_title, series_name, character_name, search_keyword, prize_rank,
+ popularity_score, rarity_score, quality_score)
+VALUES
+('死神', 'BLEACH', '黑崎一護', '一番くじ BLEACH 黒崎一護', NULL, 5, 4, 4),
+('死神', 'BLEACH', '藍染惣右介', '一番くじ BLEACH 藍染惣右介', NULL, 5, 4, 4),
+('死神', 'BLEACH', '烏爾奇奧拉', '一番くじ BLEACH ウルキオラ', NULL, 4, 4, 4),
+
+('火影忍者', 'NARUTO', '漩渦鳴人', '一番くじ NARUTO うずまきナルト', NULL, 5, 4, 4),
+('火影忍者', 'NARUTO', '宇智波佐助', '一番くじ NARUTO うちはサスケ', NULL, 5, 4, 4),
+('火影忍者', 'NARUTO', '宇智波鼬', '一番くじ NARUTO うちはイタチ', NULL, 5, 5, 4),
+
+('航海王', 'ONE PIECE', '蒙其・D・魯夫', '一番くじ ワンピース ルフィ', NULL, 5, 4, 4),
+('航海王', 'ONE PIECE', '羅羅亞・索隆', '一番くじ ワンピース ゾロ', NULL, 5, 4, 4),
+('航海王', 'ONE PIECE', '香吉士', '一番くじ ワンピース サンジ', NULL, 4, 3, 4);
+
+SELECT * FROM tracked_items;
+
+-- 1. 死神系列測試商品 (id 1, 2, 3)
+INSERT INTO listings (tracked_item_id, source, title, product_url, image_url) VALUES (
+    1, 'Rakuten', '一番くじ BLEACH 黒崎一護 MASTERLISE A賞 測試商品', 'https://example.com', NULL
+);
+INSERT INTO listings (tracked_item_id, source, title, product_url, image_url) VALUES (
+    2, 'Rakuten', '一番くじ BLEACH 藍染惣右介 MASTERLISE B賞 測試商品', 'https://example.com', NULL
+);
+INSERT INTO listings (tracked_item_id, source, title, product_url, image_url) VALUES (
+    3, 'Rakuten', '一番くじ BLEACH ウルキオラ MASTERLISE C賞 測試商品', 'https://example.com', NULL
+);
+
+-- 2. 火影忍者系列測試商品 (id 4, 5, 6)
+INSERT INTO listings (tracked_item_id, source, title, product_url, image_url) VALUES (
+    4, 'Rakuten', '一番くじ NARUTO うずまきナルト MASTERLISE A賞 測試商品', 'https://example.com', NULL
+);
+INSERT INTO listings (tracked_item_id, source, title, product_url, image_url) VALUES (
+    5, 'Rakuten', '一番くじ NARUTO うちはサスケ MASTERLISE B賞 測試商品', 'https://example.com', NULL
+);
+INSERT INTO listings (tracked_item_id, source, title, product_url, image_url) VALUES (
+    6, 'Rakuten', '一番くじ NARUTO うちはイタチ MASTERLISE C賞 測試商品', 'https://example.com', NULL
+);
+
+-- 3. 航海王系列測試商品 (id 7, 8, 9)
+INSERT INTO listings (tracked_item_id, source, title, product_url, image_url) VALUES (
+    7, 'Rakuten', '一番くじ ワンピース ルフィ MASTERLISE A賞 測試商品', 'https://example.com', NULL
+);
+INSERT INTO listings (tracked_item_id, source, title, product_url, image_url) VALUES (
+    8, 'Rakuten', '一番くじ ワンピース ゾロ MASTERLISE B賞 測試商品', 'https://example.com', NULL
+);
+INSERT INTO listings (tracked_item_id, source, title, product_url, image_url) VALUES (
+    9, 'Rakuten', '一番くじ ワンピース サンジ MASTERLISE C賞 測試商品', 'https://example.com', NULL
+);
+
+
+SELECT COUNT(*) AS 快照總數
+FROM price_snapshots;
+
+
+UPDATE tracked_items 
+SET anime_title = '死神', series_name = NULL 
+WHERE id = 1 AND character_name = '黑崎一護';
+
+
+
+

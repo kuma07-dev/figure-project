@@ -3,80 +3,323 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>跨境成本試算｜台日一番賞價格監測系統</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跨境日本一番賞 ｜ 成本代購利潤精算器</title>
+
+    <!-- 內建純手寫極簡高質感電商樣式，與首頁完全同款 -->
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .custom-navbar {
+            background-color: #1a1a1a;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            color: #ffc107;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .navbar-menu a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            margin-left: 20px;
+        }
+
+        .navbar-menu a:hover {
+            color: #ffc107;
+        }
+
+        .main-container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+            color: #1a1a1a;
+            margin: 0 0 10px 0;
+        }
+
+        .page-desc {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .calc-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel-card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .panel-title {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            color: #212529;
+            border-bottom: 2px solid #f4f6f9;
+            padding-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.88rem;
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .input-addon {
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            border-right: none;
+            color: #495057;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .form-control {
+            width: 100%;
+            border: 1px solid #ced4da;
+            padding: 8px 12px;
+            font-size: 0.95rem;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+            color: #333;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background-color: #0069d9;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f4f6f9;
+            font-size: 0.95rem;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-val {
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+
+        .profit-highlight {
+            font-size: 1.3rem;
+        }
+
+        .status-box {
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        .status-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
 </head>
 
 <body>
-    <a href="/">← 回首頁</a>
 
-    <h1>跨境成本試算器</h1>
+    <div class="custom-navbar">
+        <a class="navbar-brand" href="/">🤖 台日一番賞價格監測系統</a>
+        <div class="navbar-menu"><a href="/">返回觀測首頁</a></div>
+    </div>
 
-    <form method="post">
-        <p>
-            <label>
-                商品價格（日圓）
-                <input type="number" name="price_jpy" min="0" required>
-            </label>
-        </p>
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">🧮 跨境代購與利潤成本試算器</h1>
+            <p class="page-desc">整合日本商品價格、代購手續費、國際空運費及台灣電商平台抽成，精準算出利潤空間。</p>
+        </div>
 
-        <p>
-            <label>
-                日本國內運費（日圓）
-                <input type="number" name="shipping_jpy" min="0" value="0" required>
-            </label>
-        </p>
+        <div class="calc-grid">
+            <div class="panel-card">
+                <div class="panel-title">📝 輸入成本參數</div>
+                <form action="/calculator" method="POST">
+                    <div class="form-group">
+                        <label class="form-label">日本商品售價 (日圓)</label>
+                        <div class="input-wrapper"><span class="input-addon">¥</span><input type="number" step="any"
+                                name="price_jpy" class="form-control" value="5000" required></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">日本國內運費 (日圓，免運填0)</label>
+                        <div class="input-wrapper"><span class="input-addon">¥</span><input type="number" step="any"
+                                name="shipping_jpy" class="form-control" value="0" required></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">即時日圓匯率 (台幣/日圓)</label>
+                        <div class="input-wrapper"><span class="input-addon">Rate</span><input type="number" step="any"
+                                name="exchange_rate" class="form-control" value="0.215" required></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">代購手續費率 (%)</label>
+                        <div class="input-wrapper"><span class="input-addon">%</span><input type="number" step="any"
+                                name="proxy_fee_rate" class="form-control" value="5" required></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">國際物流運費 (新台幣)</label>
+                        <div class="input-wrapper"><span class="input-addon">NT$</span><input type="number" step="any"
+                                name="international_shipping_twd" class="form-control" value="180" required></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">台灣賣場拍賣平台抽成率 (%)</label>
+                        <div class="input-wrapper"><span class="input-addon">%</span><input type="number" step="any"
+                                name="platform_fee_rate" class="form-control" value="8" required></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">預期在台販售預估售價 (新台幣)</label>
+                        <div class="input-wrapper"><span class="input-addon">NT$</span><input type="number" step="any"
+                                name="expected_sale_price_twd" class="form-control" value="1800" required></div>
+                    </div>
+                    <button type="submit" class="btn-submit">⚡ 開始精算獲利空間</button>
+                </form>
+            </div>
+            <!-- 右側：計算結果面板 -->
+            <div class="panel-card" style="display: flex; flex-direction: column; justify-content: flex-start;">
+                <div class="panel-title">📊 成本分析與獲利評估</div>
 
-        <p>
-            <label>
-                日圓匯率（1 日圓兌台幣）
-                <input type="number" name="exchange_rate" min="0" step="0.001" value="0.22" required>
-            </label>
-        </p>
+                {% if result %}
+                <!-- 決策燈號判斷 -->
+                {% if result.recommendation == "可觀察" %}
+                <div class="status-box status-success">🟢 評估結果：投資模型良好 (利潤正向)</div>
+                {% elif result.recommendation == "損益兩平" %}
+                <div class="status-box status-warning">🟡 評估結果：損益兩平 (無利可圖)</div>
+                {% else %}
+                <div class="status-box status-danger">🔴 評估結果：虧損警示 (不建議套利)</div>
+                {% endif %}
 
-        <p>
-            <label>
-                代購費率（%）
-                <input type="number" name="proxy_fee_rate" min="0" step="0.1" value="10" required>
-            </label>
-        </p>
+                <div class="result-row">
+                    <span>商品日圓折算成本：</span>
+                    <span class="result-val">NT$ {{ result.item_cost_twd }}</span>
+                </div>
+                <div class="result-row">
+                    <span>代購服務費支出：</span>
+                    <span class="result-val">NT$ {{ result.proxy_fee_twd }}</span>
+                </div>
+                <div class="result-row">
+                    <span>總進貨到岸成本 (Landed Cost)：</span>
+                    <span class="result-val" style="color:#007bff;">NT$ {{ result.landed_cost_twd }}</span>
+                </div>
+                <div class="result-row">
+                    <span>拍賣平台交易手續費：</span>
+                    <span class="result-val">NT$ {{ result.platform_fee_twd }}</span>
+                </div>
+                <div class="result-row"
+                    style="background-color: #f8f9fa; padding: 15px 10px; border-radius: 4px; margin-top: 15px;">
+                    <span style="font-weight: bold;">📊 最低保本損益兩平售價：</span>
+                    <span class="result-val text-dark" style="font-size: 1.05rem;">NT$ {{ result.break_even_price_twd
+                        }}</span>
+                </div>
+                <div class="result-row" style="padding: 15px 10px;">
+                    <span style="font-weight: bold; font-size: 1.1rem;">💰 預估最終純利潤 (TWD)：</span>
+                    <span
+                        class="result-val profit-highlight {% if result.estimated_profit_twd > 0 %}text-success{% else %}text-danger{% endif %}">
+                        NT$ {{ result.estimated_profit_twd }}
+                    </span>
+                </div>
 
-        <p>
-            <label>
-                國際運費／材積費（台幣）
-                <input type="number" name="international_shipping_twd" min="0" value="250" required>
-            </label>
-        </p>
+                {% else %}
+                <!-- 預設尚未計算時的提示畫面 -->
+                <div style="text-align: center; color: #999; margin: auto 0; padding: 40px 0;">
+                    <p style="font-size: 3rem; margin: 0 0 15px 0;">🧮</p>
+                    <p style="margin: 0; font-size: 0.95rem;">請在左側輸入你的成本數據，<br>並點擊按鈕查看投資回報精算報告。</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
-        <p>
-            <label>
-                台灣平台手續費率（%）
-                <input type="number" name="platform_fee_rate" min="0" max="99" step="0.1" value="7" required>
-            </label>
-        </p>
-
-        <p>
-            <label>
-                預估台灣售價（台幣）
-                <input type="number" name="expected_sale_price_twd" min="0" required>
-            </label>
-        </p>
-
-        <button type="submit">開始試算</button>
-    </form>
-
-    {% if result %}
-    <hr>
-
-    <h2>試算結果</h2>
-
-    <p>商品台幣成本：NT${{ "{:,}".format(result.item_cost_twd) }}</p>
-    <p>代購費：NT${{ "{:,}".format(result.proxy_fee_twd) }}</p>
-    <p>預估落地成本：NT${{ "{:,}".format(result.landed_cost_twd) }}</p>
-    <p>台灣平台手續費：NT${{ "{:,}".format(result.platform_fee_twd) }}</p>
-    <p>損益兩平售價：NT${{ "{:,}".format(result.break_even_price_twd) }}</p>
-    <p>預估淨利：NT${{ "{:,}".format(result.estimated_profit_twd) }}</p>
-    <p>建議：{{ result.recommendation }}</p>
-    {% endif %}
 </body>
 
 </html>
