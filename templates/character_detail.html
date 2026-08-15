@@ -374,6 +374,25 @@
             </div>
         </div>
 
+        <h2>🚨 市場漲幅預警</h2>
+        <div class="table-section">
+            {% if alert.change_percent is none %}
+            <p>資料不足：需要至少兩個不同資料日的價格快照，才能計算漲幅。</p>
+            {% else %}
+            <p>
+                最新每日中位數：<strong>¥{{ "{:,}".format(alert.latest_median) }}</strong>
+                ｜前一個資料日中位數：¥{{ "{:,}".format(alert.previous_median) }}
+            </p>
+            <p>
+                {% if alert.status == "潛在漲幅預警" %}
+                <span class="alert-badge alert-high">⚠️ 潛在漲幅預警（+{{ alert.change_percent }}%）</span>
+                {% else %}
+                <span class="alert-badge alert-normal">⚖️ 正常觀察（{{ "%+.1f"|format(alert.change_percent) }}%）</span>
+                {% endif %}
+            </p>
+            {% endif %}
+        </div>
+
         <h2>📈 每日中位數價格走勢</h2>
         <div class="chart-section">
             <div class="chart-container"><canvas id="priceChart"></canvas></div>
@@ -399,20 +418,15 @@
                         <td>{{ snapshot.title }}</td>
                         <td><span class="price-text">¥{{ "{:,}".format(snapshot.price_jpy) }}</span></td>
 
-                        <!-- 預警判定燈號核心邏輯 -->
+                        <!-- 後端已依同一資料日中位數完成判定，模板只負責顯示。 -->
                         <td>
-                            {% if current_median and current_median > 0 %}
-                            {% set diff_ratio = (snapshot.price_jpy - current_median) / current_median %}
-                            {% if diff_ratio <= -0.15 %} <span class="alert-badge alert-low">🔥 低估特價 (-{{ (diff_ratio *
-                                -100) | round }}%)</span>
-                                {% elif diff_ratio >= 0.15 %}
-                                <span class="alert-badge alert-high">⚠️ 溢價偏高 (+{{ (diff_ratio * 100) | round }}%)</span>
-                                {% else %}
-                                <span class="alert-badge alert-normal">⚖️ 價格平穩</span>
-                                {% endif %}
-                                {% else %}
-                                <span class="alert-badge alert-normal">計算中</span>
-                                {% endif %}
+                            {% if snapshot.price_status == "低估特價" %}
+                            <span class="alert-badge alert-low">🔥 低估特價（{{ snapshot.price_difference_percent }}%）</span>
+                            {% elif snapshot.price_status == "溢價偏高" %}
+                            <span class="alert-badge alert-high">⚠️ 溢價偏高（+{{ snapshot.price_difference_percent }}%）</span>
+                            {% else %}
+                            <span class="alert-badge alert-normal">⚖️ 價格平穩（{{ "%+.1f"|format(snapshot.price_difference_percent) }}%）</span>
+                            {% endif %}
                         </td>
 
                         <td>

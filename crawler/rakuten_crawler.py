@@ -306,12 +306,17 @@ from dotenv import load_dotenv
 
 from database import get_connection
 
+import logging
+
 load_dotenv()
 
 # 全球開發者標準官方 IchibaItem 端點
-API_URL = "https://rakuten.co.jp"
+API_URL = "https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701"
+SEARCH_HITS = 30
+REQUEST_TIMEOUT_SECONDS = 20
 
 APPLICATION_ID = os.getenv("RAKUTEN_APPLICATION_ID")
+ACCESS_KEY = os.getenv("RAKUTEN_ACCESS_KEY")
 
 
 EXCLUDE_KEYWORDS = [
@@ -404,20 +409,19 @@ def calculate_popularity_score(total_count):
         return 1
 
 
-def update_tracked_item_meta(tracked_item_id, popularity_score, series_name):
+def update_tracked_item_popularity(tracked_item_id, popularity_score):
     """💡 自動回填：將自動算好的熱度與系列名稱更新回 MySQL 專案主表"""
     connection = get_connection()
     try:
         with connection.cursor() as cursor:
             # 強制將判定出來的系列主題更新進去
             sql = """
-                UPDATE tracked_items 
+                UPDATE tracked_items
                 SET popularity_score = %s,
-                    series_name = %s,
                     updated_at = NOW()
                 WHERE id = %s
             """
-            cursor.execute(sql, (popularity_score, series_name, tracked_item_id))
+            cursor.execute(sql, (popularity_score, tracked_item_id))
         connection.commit()
     except Exception as e:
         print(f"⚠️ 更新角色中繼資料失敗 (ID: {tracked_item_id}): {e}")
@@ -426,28 +430,42 @@ def update_tracked_item_meta(tracked_item_id, popularity_score, series_name):
         connection.close()
 
 
-def search_rakuten(keyword, hits=10):
+def search_rakuten(keyword, hits=SEARCH_HITS):
     """用關鍵字搜尋日本樂天市場，回傳整理過的商品清單。"""
-    if not APPLICATION_ID:
+    if not APPLICATION_ID or not ACCESS_KEY:
         raise ValueError("找不到 RAKUTEN_APPLICATION_ID，請檢查 .env 檔案。")
 
     params = {
         "applicationId": APPLICATION_ID,
+        "accessKey": ACCESS_KEY,
         "keyword": keyword,
         "hits": hits,
         "page": 1,
         "format": "json",
+        "formatVersion": 2,
         "sort": "standard"
     }
 
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        "applicationId": APPLICATION_ID,
+        "accessKey": ACCESS_KEY,
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "application/json",
+        "Referer": "https://www.rakuten.co.jp/",
+        "Origin": "https://www.rakuten.co.jp/",
     }
 
-    response = requests.get(API_URL, params=params, headers=headers, timeout=20)
+    response = requests.get(
+        API_URL,
+        params=params,
+        headers=headers,
+        timeout=REQUEST_TIMEOUT_SECONDS,
+        allow_redirects=False,
+    )
     
     if response.status_code != 200:
         print(f"\n❌ 樂天伺服器連線失敗，代碼：{response.status_code}")
+        print(f"🔍 Rakuten 回應內容：{response.text[:2000]}")
         return 0, []
 
     try:
@@ -555,6 +573,33 @@ def upsert_listing(tracked_item_id, item):
         connection.close()
 
 
+
+
+
+def snapshot_exists_today(listing_id):
+    """確認此商品今天是否已存過價格快照。"""
+
+    connection = get_connection()
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT id
+                FROM price_snapshots
+                WHERE listing_id = %s
+                  AND DATE(captured_at) = CURDATE()
+                LIMIT 1
+            """, (listing_id,))
+
+            return cursor.fetchone() is not None
+
+    finally:
+        connection.close()
+
+
+
+
+
 def insert_price_snapshot(tracked_item_id, listing_id, item):
     """每次爬取都新增一筆價格紀錄。"""
     if not listing_id:
@@ -566,9 +611,28 @@ def insert_price_snapshot(tracked_item_id, listing_id, item):
                 INSERT INTO price_snapshots (
                     tracked_item_id, listing_id, price_jpy, shipping_jpy, stock_status, captured_at
                 )
-                VALUES (%s, %s, %s, NULL, %s, %s)
+                SELECT %s, %s, %s, NULL, %s, %s
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM price_snapshots
+                    WHERE tracked_item_id = %s
+                      AND listing_id = %s
+                      AND DATE(captured_at) = DATE(%s)
+                )
             """
-            cursor.execute(sql, (tracked_item_id, listing_id, item["price_jpy"], item["stock_status"], item["captured_at"]))
+            cursor.execute(
+                sql,
+                (
+                    tracked_item_id,
+                    listing_id,
+                    item["price_jpy"],
+                    item["stock_status"],
+                    item["captured_at"],
+                    tracked_item_id,
+                    listing_id,
+                    item["captured_at"],
+                ),
+            )
         connection.commit()
     except Exception:
         connection.rollback()
@@ -577,7 +641,8 @@ def insert_price_snapshot(tracked_item_id, listing_id, item):
         connection.close()
 
 
-def main():
+def _legacy_main():
+    # 外層：處理程式啟動、讀取資料庫追蹤角色時的錯誤
     try:
         tracked_items = get_active_tracked_items()
         print(f"目前啟用追蹤：{len(tracked_items)} 位角色\n")
@@ -623,7 +688,49 @@ def main():
                 insert_price_snapshot(tracked_item["id"], listing_id, item)
 
     except Exception as error:
+        logging.exception("程式啟動或讀取追蹤角色失敗")
         print(f"程式執行失敗：{error}")
+
+
+def main():
+    """Crawl every active tracked item without one failure stopping the run."""
+    try:
+        tracked_items = get_active_tracked_items()
+    except Exception as error:
+        logging.exception("Unable to load active tracked items")
+        print(f"Unable to load active tracked items: {error}")
+        return
+
+    print(f"Crawling {len(tracked_items)} active tracked item(s).")
+
+    for tracked_item in tracked_items:
+        try:
+            total_count, raw_items = search_rakuten(
+                tracked_item["search_keyword"]
+            )
+            cleaned_items = clean_items(raw_items)
+            popularity_score = calculate_popularity_score(total_count)
+            update_tracked_item_popularity(
+                tracked_item["id"], popularity_score
+            )
+
+            for item in cleaned_items:
+                listing_id = upsert_listing(tracked_item["id"], item)
+                insert_price_snapshot(tracked_item["id"], listing_id, item)
+
+            print(
+                f"Completed tracked item {tracked_item['id']} "
+                f"({tracked_item['character_name']}): "
+                f"{len(cleaned_items)} listing(s), popularity {popularity_score}."
+            )
+        except Exception as error:
+            logging.exception(
+                "Failed to crawl tracked item %s", tracked_item["id"]
+            )
+            print(
+                f"Failed tracked item {tracked_item['id']} "
+                f"({tracked_item['character_name']}): {error}"
+            )
 
 
 if __name__ == "__main__":
