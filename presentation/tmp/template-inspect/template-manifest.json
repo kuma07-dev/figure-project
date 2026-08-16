@@ -1,0 +1,157 @@
+{
+  "sourcePptx": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\source-template.pptx",
+  "workspace": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp",
+  "outDir": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect",
+  "generatedAt": "2026-08-16T05:19:57.281Z",
+  "slideCount": 9,
+  "slideArtifacts": [
+    {
+      "slide": 1,
+      "previewPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\source-slides\\source-slide-01.png",
+      "previewRelativePath": "template-inspect/source-slides/source-slide-01.png",
+      "layoutPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\layouts\\source-slide-01.layout.json",
+      "layoutRelativePath": "template-inspect/layouts/source-slide-01.layout.json"
+    },
+    {
+      "slide": 2,
+      "previewPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\source-slides\\source-slide-02.png",
+      "previewRelativePath": "template-inspect/source-slides/source-slide-02.png",
+      "layoutPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\layouts\\source-slide-02.layout.json",
+      "layoutRelativePath": "template-inspect/layouts/source-slide-02.layout.json"
+    },
+    {
+      "slide": 3,
+      "previewPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\source-slides\\source-slide-03.png",
+      "previewRelativePath": "template-inspect/source-slides/source-slide-03.png",
+      "layoutPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\layouts\\source-slide-03.layout.json",
+      "layoutRelativePath": "template-inspect/layouts/source-slide-03.layout.json"
+    },
+    {
+      "slide": 4,
+      "previewPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\source-slides\\source-slide-04.png",
+      "previewRelativePath": "template-inspect/source-slides/source-slide-04.png",
+      "layoutPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\layouts\\source-slide-04.layout.json",
+      "layoutRelativePath": "template-inspect/layouts/source-slide-04.layout.json"
+    },
+    {
+      "slide": 5,
+      "previewPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\source-slides\\source-slide-05.png",
+      "previewRelativePath": "template-inspect/source-slides/source-slide-05.png",
+      "layoutPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\layouts\\source-slide-05.layout.json",
+      "layoutRelativePath": "template-inspect/layouts/source-slide-05.layout.json"
+    },
+    {
+      "slide": 6,
+      "previewPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\source-slides\\source-slide-06.png",
+      "previewRelativePath": "template-inspect/source-slides/source-slide-06.png",
+      "layoutPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\layouts\\source-slide-06.layout.json",
+      "layoutRelativePath": "template-inspect/layouts/source-slide-06.layout.json"
+    },
+    {
+      "slide": 7,
+      "previewPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\source-slides\\source-slide-07.png",
+      "previewRelativePath": "template-inspect/source-slides/source-slide-07.png",
+      "layoutPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\layouts\\source-slide-07.layout.json",
+      "layoutRelativePath": "template-inspect/layouts/source-slide-07.layout.json"
+    },
+    {
+      "slide": 8,
+      "previewPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\source-slides\\source-slide-08.png",
+      "previewRelativePath": "template-inspect/source-slides/source-slide-08.png",
+      "layoutPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\layouts\\source-slide-08.layout.json",
+      "layoutRelativePath": "template-inspect/layouts/source-slide-08.layout.json"
+    },
+    {
+      "slide": 9,
+      "previewPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\source-slides\\source-slide-09.png",
+      "previewRelativePath": "template-inspect/source-slides/source-slide-09.png",
+      "layoutPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\layouts\\source-slide-09.layout.json",
+      "layoutRelativePath": "template-inspect/layouts/source-slide-09.layout.json"
+    }
+  ],
+  "inspectPath": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\template-inspect.ndjson",
+  "inspectRelativePath": "template-inspect/template-inspect.ndjson",
+  "inspectTruncated": true,
+  "inspectMetadata": {
+    "revision": "xxkbgf",
+    "target": {
+      "id": "pr/u2g1bg"
+    },
+    "kind": {
+      "requested": "slide,textbox,shape,image,table,chart",
+      "tokens": [
+        "slide",
+        "textbox",
+        "shape",
+        "image",
+        "table",
+        "chart"
+      ]
+    },
+    "include": {
+      "tokens": []
+    },
+    "exclude": {
+      "tokens": []
+    },
+    "notices": []
+  },
+  "extractedMedia": [
+    {
+      "entry": "ppt/media/image2.png",
+      "path": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\assets\\ppt\\media\\image2.png",
+      "relativePath": "template-inspect/assets/ppt/media/image2.png",
+      "bytes": 161062
+    },
+    {
+      "entry": "ppt/media/image3.png",
+      "path": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\assets\\ppt\\media\\image3.png",
+      "relativePath": "template-inspect/assets/ppt/media/image3.png",
+      "bytes": 470409
+    },
+    {
+      "entry": "ppt/media/image4.png",
+      "path": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\assets\\ppt\\media\\image4.png",
+      "relativePath": "template-inspect/assets/ppt/media/image4.png",
+      "bytes": 171826
+    },
+    {
+      "entry": "ppt/media/image5.png",
+      "path": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\assets\\ppt\\media\\image5.png",
+      "relativePath": "template-inspect/assets/ppt/media/image5.png",
+      "bytes": 153062
+    },
+    {
+      "entry": "ppt/media/image6.png",
+      "path": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\assets\\ppt\\media\\image6.png",
+      "relativePath": "template-inspect/assets/ppt/media/image6.png",
+      "bytes": 161467
+    },
+    {
+      "entry": "ppt/media/image7.png",
+      "path": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\assets\\ppt\\media\\image7.png",
+      "relativePath": "template-inspect/assets/ppt/media/image7.png",
+      "bytes": 308896
+    },
+    {
+      "entry": "ppt/media/image1.png",
+      "path": "C:\\Users\\student\\Desktop\\ichiban-arbitrage-system\\presentation\\tmp\\template-inspect\\assets\\ppt\\media\\image1.png",
+      "relativePath": "template-inspect/assets/ppt/media/image1.png",
+      "bytes": 266653
+    }
+  ],
+  "fonts": [
+    "+mj-lt",
+    "+mn-lt",
+    "Calibri",
+    "Calibri Light",
+    "Consolas",
+    "Microsoft JhengHei"
+  ],
+  "packageParts": {
+    "mediaCount": 7,
+    "slideXmlCount": 9,
+    "chartCount": 0,
+    "tableSlideCount": 0
+  }
+}

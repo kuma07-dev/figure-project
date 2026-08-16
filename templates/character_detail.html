@@ -116,7 +116,7 @@
     <title>{{ tracked_item.character_name }} ｜ 數據指標與價格預警詳情</title>
 
     <!-- 引入圖表繪製核心庫 -->
-    <script src="https://jsdelivr.net"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <!-- 內建純手寫極簡高質感電商樣式 -->
     <style>
@@ -423,9 +423,11 @@
                             {% if snapshot.price_status == "低估特價" %}
                             <span class="alert-badge alert-low">🔥 低估特價（{{ snapshot.price_difference_percent }}%）</span>
                             {% elif snapshot.price_status == "溢價偏高" %}
-                            <span class="alert-badge alert-high">⚠️ 溢價偏高（+{{ snapshot.price_difference_percent }}%）</span>
+                            <span class="alert-badge alert-high">⚠️ 溢價偏高（+{{ snapshot.price_difference_percent
+                                }}%）</span>
                             {% else %}
-                            <span class="alert-badge alert-normal">⚖️ 價格平穩（{{ "%+.1f"|format(snapshot.price_difference_percent) }}%）</span>
+                            <span class="alert-badge alert-normal">⚖️ 價格平穩（{{
+                                "%+.1f"|format(snapshot.price_difference_percent) }}%）</span>
                             {% endif %}
                         </td>
 

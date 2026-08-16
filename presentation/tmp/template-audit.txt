@@ -1,0 +1,6 @@
+Source deck audit
+- 9 slides, 16:9 (1280 x 720), white canvas, dark typography, sage-green accent (#2F6F4E / #DDE8E1), light-gray blocks.
+- Font evidence: Microsoft JhengHei for Chinese, Calibri / Calibri Light for Latin text.
+- Reusable compositions: title with screenshot (1); three-problem cards (2); screenshot + explanation (3, 6); sequential pipeline (4); compact data model (5); four-card comparison (7); MVP summary (8); NEXT with numbered list (9).
+- All slides are slide-local objects under existing layout/master; source contains no external citation requirements relevant to this project.
+- Output keeps the source deck's typography, margins, palette, white space, page-number corner treatment, and screenshot framing. It replaces all source-specific content with repository-grounded content and user-supplied screenshots.

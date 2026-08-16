@@ -1,0 +1,4 @@
+- Slide 3 uses a process-flow source layout rather than a domain-specific one; labels are replaced with the actual Rakuten → crawler → MySQL → Flask/Chart.js flow.
+- Slide 4 uses a compact model layout and represents the three actual SQL tables instead of copying source API endpoint names.
+- Slides 1, 5, 7, and 8 replace source screenshots with user-supplied local webpage screenshots only; no generated UI or invented market evidence is used.
+- A 10th slide reuses the source NEXT layout to close on scoped implementation work rather than a generic thank-you slide.
