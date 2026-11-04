@@ -18,3 +18,5 @@ data/processed/*
 
 # 作業系統檔案
 .DS_Store
+# 簡報製作過程的暫存檔
+presentation/tmp/
