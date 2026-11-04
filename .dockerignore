@@ -14,5 +14,3 @@ presentation
 tests
 *.bak
 *.md
-test_API.py
-test_db.py

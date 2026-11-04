@@ -120,6 +120,15 @@ pytest
 
 測試涵蓋成本試算公式、輸入檢查、資料清洗規則與試算頁面，不需要資料庫或 API 金鑰。每次 push 到 GitHub 時，GitHub Actions 會自動執行程式碼檢查、測試與 Docker 映像檔建置。
 
+## 檢查工具
+
+```bash
+python -m scripts.check_rakuten_api   # 確認樂天 API 金鑰與連線（只查詢 5 筆，不寫入資料庫）
+python -m scripts.check_db            # 確認資料庫連線與各資料表筆數
+```
+
+使用 Docker 時，在指令前加上 `docker compose run --rm web`。
+
 ## 限制
 
 - 只有樂天市場一個資料來源，價格為刊登價而非成交價
