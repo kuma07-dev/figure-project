@@ -20,3 +20,7 @@ data/processed/*
 .DS_Store
 # 簡報製作過程的暫存檔
 presentation/tmp/
+
+# 測試與檢查工具的快取
+.pytest_cache/
+.ruff_cache/

@@ -1,5 +1,7 @@
 # 台日一番賞價格監測與跨境成本試算系統
 
+[![CI](https://github.com/kuma07-dev/figure-project/actions/workflows/ci.yml/badge.svg)](https://github.com/kuma07-dev/figure-project/actions/workflows/ci.yml)
+
 以日本樂天市場為資料來源，追蹤指定一番賞角色的刊登價格，保存每日價格快照，並在網站上呈現價格走勢、價格預警與跨境購入的成本試算。
 
 > 本專案為資展國際 Python AI 應用工程師就業養成班（AIPE04）的個人期中專題（2026/08）。
@@ -24,6 +26,8 @@
 | 資料庫 | MySQL、PyMySQL |
 | 網站 | Flask、Jinja2、Chart.js |
 | 設定 | python-dotenv |
+| 容器 | Docker、Docker Compose、Gunicorn |
+| 測試與 CI | pytest、ruff、GitHub Actions |
 
 ## 系統流程
 
@@ -56,42 +60,65 @@ tracked_items（追蹤清單）
 
 ## 執行方式
 
+### 方法一：Docker（推薦）
+
+需要 [Docker Desktop](https://www.docker.com/products/docker-desktop/)。
+
+1. 建立 `.env`，填入樂天 API 金鑰（不要提交到 Git）
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. 啟動 MySQL 與網站。第一次啟動時會自動建立資料表與追蹤清單
+
+   ```bash
+   docker compose up --build
+   ```
+
+3. 執行爬蟲抓取價格（另開一個終端機）
+
+   ```bash
+   docker compose run --rm web python -m crawler.rakuten_crawler
+   ```
+
+4. 開啟 http://localhost:5000
+
+停止：`docker compose down`。加上 `-v` 會一併刪除資料庫資料。
+
+### 方法二：本機直接執行
+
 1. 安裝套件
 
    ```bash
    pip install -r requirements.txt
    ```
 
-2. 在專案根目錄建立 `.env`（不要提交到 Git）
-
-   ```text
-   RAKUTEN_APPLICATION_ID=你的樂天 Application ID
-   RAKUTEN_ACCESS_KEY=你的樂天 Access Key
-   DB_HOST=localhost
-   DB_PORT=3306
-   DB_USER=你的 MySQL 帳號
-   DB_PASSWORD=你的 MySQL 密碼
-   DB_NAME=你的資料庫名稱
-   ```
+2. 複製 `.env.example` 為 `.env`，填入樂天 API 金鑰與本機 MySQL 帳密
 
 3. 建立資料表與追蹤清單
 
    ```bash
-   mysql -u <帳號> -p <資料庫名稱> < database/schema.sql
-   mysql -u <帳號> -p <資料庫名稱> < database/seed_data.sql
+   mysql -u <帳號> -p < database/schema.sql
+   mysql -u <帳號> -p < database/seed_data.sql
    ```
 
-4. 執行爬蟲抓取價格
+4. 執行爬蟲，再啟動網站（http://localhost:5000）
 
    ```bash
    python -m crawler.rakuten_crawler
-   ```
-
-5. 啟動網站，開啟 http://localhost:5000
-
-   ```bash
    python app.py
    ```
+
+## 測試
+
+```bash
+pip install pytest ruff
+ruff check .
+pytest
+```
+
+測試涵蓋成本試算公式、輸入檢查、資料清洗規則與試算頁面，不需要資料庫或 API 金鑰。每次 push 到 GitHub 時，GitHub Actions 會自動執行程式碼檢查、測試與 Docker 映像檔建置。
 
 ## 限制
 
