@@ -1,10 +1,10 @@
 from collections import defaultdict
-from math import isfinite
 from statistics import median
 
 from flask import Flask, render_template, request
 
 from database import get_connection
+from services.cost import CostInputError, calculate_landed_cost, parse_cost_form
 
 
 app = Flask(__name__)
@@ -174,59 +174,15 @@ def calculator():
     result = None
     error = None
     if request.method == "POST":
-        field_names = (
-            "price_jpy",
-            "shipping_jpy",
-            "exchange_rate",
-            "proxy_fee_rate",
-            "international_shipping_twd",
-            "platform_fee_rate",
-            "expected_sale_price_twd",
-        )
         try:
-            values = {name: float(request.form[name]) for name in field_names}
-        except (KeyError, TypeError, ValueError):
-            error = "請輸入有效的數字。"
+            values = parse_cost_form(request.form)
+        except CostInputError as input_error:
+            error = str(input_error)
         else:
-            if not all(isfinite(value) and value >= 0 for value in values.values()):
-                error = "所有欄位都必須是大於或等於 0 的有限數字。"
-            elif values["platform_fee_rate"] >= 100:
-                error = "平台抽成率必須小於 100%，才能計算保本售價。"
-            else:
-                price_jpy = values["price_jpy"]
-                shipping_jpy = values["shipping_jpy"]
-                exchange_rate = values["exchange_rate"]
-                proxy_fee_rate = values["proxy_fee_rate"] / 100
-                international_shipping_twd = values["international_shipping_twd"]
-                platform_fee_rate = values["platform_fee_rate"] / 100
-                expected_sale_price_twd = values["expected_sale_price_twd"]
-
-                item_cost_twd = (price_jpy + shipping_jpy) * exchange_rate
-                proxy_fee_twd = item_cost_twd * proxy_fee_rate
-                landed_cost_twd = item_cost_twd + proxy_fee_twd + international_shipping_twd
-                platform_fee_twd = expected_sale_price_twd * platform_fee_rate
-                estimated_profit_twd = expected_sale_price_twd - landed_cost_twd - platform_fee_twd
-                break_even_price_twd = landed_cost_twd / (1 - platform_fee_rate)
-
-                if estimated_profit_twd > 0:
-                    recommendation = "可觀察"
-                elif estimated_profit_twd == 0:
-                    recommendation = "損益兩平"
-                else:
-                    recommendation = "不建議"
-
-                result = {
-                    "item_cost_twd": round(item_cost_twd),
-                    "proxy_fee_twd": round(proxy_fee_twd),
-                    "landed_cost_twd": round(landed_cost_twd),
-                    "platform_fee_twd": round(platform_fee_twd),
-                    "estimated_profit_twd": round(estimated_profit_twd),
-                    "break_even_price_twd": round(break_even_price_twd),
-                    "recommendation": recommendation,
-                }
+            result = calculate_landed_cost(**values)
 
     return render_template("calculator.html", result=result, error=error)
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
